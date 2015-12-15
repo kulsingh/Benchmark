@@ -29,9 +29,9 @@ public class Benchmark {
 		 
 		 // registering implementation combination
 		 List<String> systemsIDsList = new ArrayList<String>();
-		 systemsIDsList.add("TBSLQueryParser v0.1.7-beta"); // TBSL
+//		 systemsIDsList.add("TBSLQueryParser v0.1.7-beta"); // TBSL
 		 systemsIDsList.add("SINAQueryParser v0.1.7-beta"); // SINA 
-		 systemsIDsList.add("TBSLQueryParser v0.1.7-beta, SINAQueryParser v0.1.7-beta"); // TBSL & SINA
+//		 systemsIDsList.add("TBSLQueryParser v0.1.7-beta, SINAQueryParser v0.1.7-beta"); // TBSL & SINA
 		 Map<String, List<Double>> systemsResults = benchmark(systemsIDsList, qaldBenchmarkTests, resultDir, pluginsPath, "en", "string");
 		 
 		 // printing results	 
@@ -60,13 +60,13 @@ public class Benchmark {
 					Dataset qaldQuestionAnswer = QALDBenchmark.deserialize(qaldBenchmkarkTest);
 					QALDBenchmarkResult qaldBenchmarkResult = QALDBenchmark.evaluate(systemAnswer, qaldQuestionAnswer);
 					File outputFile = new File(resultDir.getPath() + "/" + 
-										systemsIDs.trim().replace(",", "-") + "." + qaldQuestionAnswer.getId());
+										systemsIDs.trim().replace(",", "-") + "." + qaldQuestionAnswer.getId().trim());
 					QALDBenchmark.serialize(systemAnswer, outputFile);
 					List<Double> results = new ArrayList<Double>();
 					results.add(qaldBenchmarkResult.getFmeasure());
 					results.add(qaldBenchmarkResult.getPrecision());
 					results.add(qaldBenchmarkResult.getRecall());
-					systemsResults.put(systemsIDs + " - " + qaldQuestionAnswer.getId() , results); // adding the results
+					systemsResults.put(systemsIDs + " - " + qaldQuestionAnswer.getId().trim() , results); // adding the results
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
