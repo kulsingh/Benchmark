@@ -22,13 +22,17 @@ public class Benchmark {
 		 String workingDir = System.getProperty("user.dir");
 		 String qaldDirPath = workingDir + "/qaldFiles";
 		 String pluginsPath = workingDir + "/plugins";
+		 String resultFilesPath = workingDir + "/resultFiles";
 		 File qaldDir = new File(qaldDirPath);
+		 File resultDir = new File(resultFilesPath);
 		 File[] qaldBenchmarkTests = qaldDir.listFiles(); // listing all QALD testing files
+		 
+		 // registering implementation combination
 		 List<String> systemsIDsList = new ArrayList<String>();
 		 systemsIDsList.add("TBSLQueryParser v0.1.7-beta"); // TBSL
 		 systemsIDsList.add("SINAQueryParser v0.1.7-beta"); // SINA 
 		 systemsIDsList.add("TBSLQueryParser v0.1.7-beta, SINAQueryParser v0.1.7-beta"); // TBSL & SINA
-		 Map<String, List<Double>> systemsResults = benchmark(systemsIDsList, qaldBenchmarkTests, pluginsPath, "en", "string");
+		 Map<String, List<Double>> systemsResults = benchmark(systemsIDsList, qaldBenchmarkTests, resultDir, pluginsPath, "en", "string");
 		 
 		 // printing results	 
 		 System.out.println("\t\t\t Fmeasure \t Precision \t Recall");
@@ -42,7 +46,7 @@ public class Benchmark {
 		 }
 	}
 	
-	public static Map<String, List<Double>> benchmark(List<String> systemsIDsList, File[] qaldBenchmarkTests, String pluginDirPath, String lang, String queryType) throws IOException {
+	public static Map<String, List<Double>> benchmark(List<String> systemsIDsList, File[] qaldBenchmarkTests, File resultDir, String pluginDirPath, String lang, String queryType) throws IOException {
 		Map<String, List<Double>> systemsResults = new HashMap<String, List<Double>>();
 
 		for(String systemsIDs : systemsIDsList) {			
@@ -55,11 +59,14 @@ public class Benchmark {
 					systemAnswer = qaldBenchmrk.evaluate(qaldBenchmkarkTest, lang, queryType, pluginManager);
 					Dataset qaldQuestionAnswer = QALDBenchmark.deserialize(qaldBenchmkarkTest);
 					QALDBenchmarkResult qaldBenchmarkResult = QALDBenchmark.evaluate(systemAnswer, qaldQuestionAnswer);
+					File outputFile = new File(resultDir.getPath() + "/" + 
+										systemsIDs.trim().replace(",", "-") + "." + qaldQuestionAnswer.getId());
+					QALDBenchmark.serialize(systemAnswer, outputFile);
 					List<Double> results = new ArrayList<Double>();
 					results.add(qaldBenchmarkResult.getFmeasure());
 					results.add(qaldBenchmarkResult.getPrecision());
 					results.add(qaldBenchmarkResult.getRecall());
-					systemsResults.put(systemsIDs, results); // adding the results
+					systemsResults.put(systemsIDs + " - " + qaldQuestionAnswer.getId() , results); // adding the results
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
